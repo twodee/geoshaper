@@ -6,7 +6,7 @@ import {TrackballControls} from 'three/examples/jsm/controls/TrackballControls';
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer();
-renderer.setClearColor(new THREE.Color(0.3, 0.3, 0.3), 1);
+renderer.setClearColor(new THREE.Color(0.9, 0.9, 0.9), 1);
 
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -123,4 +123,10 @@ shapePicker.addEventListener('change', () => {
   } else if (shapePicker.value === 'cube') {
     loadCube();
   }
+});
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
 });
