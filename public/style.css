@@ -1,0 +1,9 @@
+body {
+  margin: 0;
+}
+
+#shape-picker {
+  position: fixed;
+  left: 10px;
+  top: 10px;
+}
