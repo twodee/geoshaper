@@ -35,6 +35,61 @@ function loadQuadrilateral() {
 
 // --------------------------------------------------------------------------- 
 
+function loadQuadrilateralWithHole() {
+  const geometry = new THREE.Geometry();
+
+  geometry.vertices.push(new THREE.Vector3(-1.00, -1.00, 0));
+  geometry.vertices.push(new THREE.Vector3(-0.33, -1.00, 0));
+  geometry.vertices.push(new THREE.Vector3( 0.33, -1.00, 0));
+  geometry.vertices.push(new THREE.Vector3( 1.00, -1.00, 0));
+
+  geometry.vertices.push(new THREE.Vector3(-1.00, -0.33, 0));
+  geometry.vertices.push(new THREE.Vector3(-0.33, -0.33, 0));
+  geometry.vertices.push(new THREE.Vector3( 0.33, -0.33, 0));
+  geometry.vertices.push(new THREE.Vector3( 1.00, -0.33, 0));
+
+  geometry.vertices.push(new THREE.Vector3(-1.00,  0.33, 0));
+  geometry.vertices.push(new THREE.Vector3(-0.33,  0.33, 0));
+  geometry.vertices.push(new THREE.Vector3( 0.33,  0.33, 0));
+  geometry.vertices.push(new THREE.Vector3( 1.00,  0.33, 0));
+
+  geometry.vertices.push(new THREE.Vector3(-1.00,  1.00, 0));
+  geometry.vertices.push(new THREE.Vector3(-0.33,  1.00, 0));
+  geometry.vertices.push(new THREE.Vector3( 0.33,  1.00, 0));
+  geometry.vertices.push(new THREE.Vector3( 1.00,  1.00, 0));
+
+  geometry.faces.push(new THREE.Face3(0, 1, 4));
+  geometry.faces.push(new THREE.Face3(1, 5, 4));
+
+  geometry.faces.push(new THREE.Face3(1, 2, 5));
+  geometry.faces.push(new THREE.Face3(2, 6, 5));
+
+  geometry.faces.push(new THREE.Face3(2, 3, 6));
+  geometry.faces.push(new THREE.Face3(3, 7, 6));
+
+  geometry.faces.push(new THREE.Face3(4, 5, 8));
+  geometry.faces.push(new THREE.Face3(5, 9, 8));
+
+  // geometry.faces.push(new THREE.Face3(5, 6, 9));
+  // geometry.faces.push(new THREE.Face3(6, 10, 9));
+
+  geometry.faces.push(new THREE.Face3(6, 7, 10));
+  geometry.faces.push(new THREE.Face3(7, 11, 10));
+
+  geometry.faces.push(new THREE.Face3(8, 9, 12));
+  geometry.faces.push(new THREE.Face3(9, 13, 12));
+
+  geometry.faces.push(new THREE.Face3(9, 10, 13));
+  geometry.faces.push(new THREE.Face3(10, 14, 13));
+
+  geometry.faces.push(new THREE.Face3(10, 11, 14));
+  geometry.faces.push(new THREE.Face3(11, 15, 14));
+
+  loadMesh(geometry);
+}
+
+// --------------------------------------------------------------------------- 
+
 function loadCube() {
   const geometry = new THREE.Geometry();
 
@@ -77,6 +132,25 @@ function loadCube() {
 
 // --------------------------------------------------------------------------- 
 
+function loadBelt() {
+  const geometry = new THREE.Geometry();
+
+  const n = 100;
+  for (let i = 0; i < n; i += 1) {
+    const radians = i / n * 2 * Math.PI;
+    geometry.vertices.push(new THREE.Vector3(Math.cos(radians), -0.2, Math.sin(radians)));
+    geometry.vertices.push(new THREE.Vector3(Math.cos(radians),  0.2, Math.sin(radians)));
+
+    const iNext = (i + 1) % n;
+    geometry.faces.push(new THREE.Face3(i * 2, iNext * 2, i * 2 + 1));
+    geometry.faces.push(new THREE.Face3(iNext * 2, iNext * 2 + 1, i * 2 + 1));
+  }
+
+  loadMesh(geometry);
+}
+
+// --------------------------------------------------------------------------- 
+
 function loadMesh(geometry) {
   geometry.computeFaceNormals();
   geometry.normalsNeedUpdate = true;
@@ -113,15 +187,24 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-loadQuadrilateral();
+loadBelt();
 animate();
 
 const shapePicker = document.getElementById('shape-picker');
 shapePicker.addEventListener('change', () => {
-  if (shapePicker.value === 'quadrilateral') {
-    loadQuadrilateral();
-  } else if (shapePicker.value === 'cube') {
-    loadCube();
+  switch (shapePicker.value) {
+    case 'quadrilateral':
+      loadQuadrilateral();
+      break;
+    case 'cube':
+      loadCube();
+      break;
+    case 'quadrilateral with hole':
+      loadQuadrilateralWithHole();
+      break;
+    case 'belt':
+      loadBelt();
+      break;
   }
 });
 
