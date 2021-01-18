@@ -142,8 +142,78 @@ function loadBelt() {
     geometry.vertices.push(new THREE.Vector3(Math.cos(radians),  0.2, Math.sin(radians)));
 
     const iNext = (i + 1) % n;
-    geometry.faces.push(new THREE.Face3(i * 2, iNext * 2, i * 2 + 1));
-    geometry.faces.push(new THREE.Face3(iNext * 2, iNext * 2 + 1, i * 2 + 1));
+    geometry.faces.push(new THREE.Face3(iNext * 2, i * 2, i * 2 + 1));
+    geometry.faces.push(new THREE.Face3(iNext * 2 + 1, iNext * 2, i * 2 + 1));
+  }
+
+  loadMesh(geometry);
+}
+
+// --------------------------------------------------------------------------- 
+
+function loadDisc() {
+  const geometry = new THREE.Geometry();
+
+  const n = 10;
+  for (let i = 0; i < n; i += 1) {
+    const radians = i / n * 2 * Math.PI;
+    geometry.vertices.push(new THREE.Vector3(Math.cos(radians), Math.sin(radians), 0));
+
+    const iNext = (i + 1) % n;
+    geometry.faces.push(new THREE.Face3(n, i, iNext));
+  }
+
+  geometry.vertices.push(new THREE.Vector3(0, 0, 0));
+
+  loadMesh(geometry);
+}
+
+// --------------------------------------------------------------------------- 
+
+function loadCylinder() {
+  const geometry = new THREE.Geometry();
+  const h = 1;
+
+  const n = 25;
+  for (let i = 0; i < n; i += 1) {
+    const radians = i / n * 2 * Math.PI;
+    geometry.vertices.push(new THREE.Vector3(Math.cos(radians), -h, Math.sin(radians)));
+    geometry.vertices.push(new THREE.Vector3(Math.cos(radians),  h, Math.sin(radians)));
+
+    const iNext = (i + 1) % n;
+    geometry.faces.push(new THREE.Face3(iNext * 2, i * 2, i * 2 + 1));
+    geometry.faces.push(new THREE.Face3(iNext * 2 + 1, iNext * 2, i * 2 + 1));
+  }
+
+  geometry.vertices.push(new THREE.Vector3(0, -h, 0));
+  geometry.vertices.push(new THREE.Vector3(0,  h, 0));
+
+  for (let i = 0; i < n; i += 1) {
+    const iNext = (i + 1) % n;
+    geometry.faces.push(new THREE.Face3(i * 2, iNext * 2, n * 2));
+    geometry.faces.push(new THREE.Face3(iNext * 2 + 1, i * 2 + 1, n * 2 + 1));
+  }
+
+  loadMesh(geometry);
+}
+
+// --------------------------------------------------------------------------- 
+
+function loadSphere() {
+  const geometry = new THREE.Geometry();
+  const nlatitudes = 10;
+  const nlongitudes = nlatitudes / 2;
+
+  for (let r = 0; r < nlatitudes; r += 1) {
+    for (let c = 0; c < nlongitudes; c += 1) {
+      const radians = r / n * 2 * Math.PI;
+      // geometry.vertices.push(new THREE.Vector3(Math.cos(radians), -h, Math.sin(radians)));
+      // geometry.vertices.push(new THREE.Vector3(Math.cos(radians),  h, Math.sin(radians)));
+
+      // const iNext = (i + 1) % n;
+      // geometry.faces.push(new THREE.Face3(iNext * 2, i * 2, i * 2 + 1));
+      // geometry.faces.push(new THREE.Face3(iNext * 2 + 1, iNext * 2, i * 2 + 1));
+    }
   }
 
   loadMesh(geometry);
@@ -171,7 +241,7 @@ const material = new THREE.MeshPhongMaterial({
   color: 0xFF0000,
   shininess: 100,
   specular: 0xFFFFFF,
-  side: THREE.DoubleSide,
+  // side: THREE.DoubleSide,
 });
 
 const light = new THREE.PointLight(0xFFFFFF, 1);
@@ -187,7 +257,6 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-loadBelt();
 animate();
 
 const shapePicker = document.getElementById('shape-picker');
@@ -205,8 +274,20 @@ shapePicker.addEventListener('change', () => {
     case 'belt':
       loadBelt();
       break;
+    case 'disc':
+      loadDisc();
+      break;
+    case 'cylinder':
+      loadCylinder();
+      break;
+    case 'sphere':
+      loadSphere();
+      break;
   }
 });
+
+loadSphere();
+shapePicker.value = 'sphere';
 
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
