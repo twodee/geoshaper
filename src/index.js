@@ -202,17 +202,21 @@ function loadCylinder() {
 function loadSphere() {
   const geometry = new THREE.Geometry();
   const nlatitudes = 10;
-  const nlongitudes = nlatitudes / 2;
+  const nlongitudes = nlatitudes * 2;
 
   for (let r = 0; r < nlatitudes; r += 1) {
+    const rRadians = r / nlatitudes * Math.PI;
+    const radius = Math.sin(rRadians);
+    const y = Math.cos(rRadians);
     for (let c = 0; c < nlongitudes; c += 1) {
-      const radians = r / n * 2 * Math.PI;
-      // geometry.vertices.push(new THREE.Vector3(Math.cos(radians), -h, Math.sin(radians)));
-      // geometry.vertices.push(new THREE.Vector3(Math.cos(radians),  h, Math.sin(radians)));
+      const cRadians = c / nlongitudes * 2 * Math.PI;
+      geometry.vertices.push(new THREE.Vector3(radius * Math.cos(cRadians), y, radius * Math.sin(-cRadians)));
 
-      // const iNext = (i + 1) % n;
-      // geometry.faces.push(new THREE.Face3(iNext * 2, i * 2, i * 2 + 1));
-      // geometry.faces.push(new THREE.Face3(iNext * 2 + 1, iNext * 2, i * 2 + 1));
+      if (r < nlatitudes - 1) {
+        const cNext = (c + 1) % nlongitudes;
+        geometry.faces.push(new THREE.Face3(r * nlongitudes + c, r * nlongitudes + cNext, (r + 1) * nlongitudes + c));
+        geometry.faces.push(new THREE.Face3(r * nlongitudes + cNext, (r + 1) * nlongitudes + cNext, (r + 1) * nlongitudes + c));
+      }
     }
   }
 
@@ -241,7 +245,7 @@ const material = new THREE.MeshPhongMaterial({
   color: 0xFF0000,
   shininess: 100,
   specular: 0xFFFFFF,
-  // side: THREE.DoubleSide,
+  side: THREE.DoubleSide,
 });
 
 const light = new THREE.PointLight(0xFFFFFF, 1);
