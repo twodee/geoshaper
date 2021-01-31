@@ -170,6 +170,28 @@ function loadDisc() {
 
 // --------------------------------------------------------------------------- 
 
+function loadAnnulus() {
+  const geometry = new THREE.Geometry();
+  const inner = 0.5;
+  const outer = 1.0;
+
+  const n = 100;
+  for (let i = 0; i < n; i += 1) {
+    const radians = i / n * 2 * Math.PI;
+
+    geometry.vertices.push(new THREE.Vector3(inner * Math.cos(radians), inner * Math.sin(radians), 0));
+    geometry.vertices.push(new THREE.Vector3(outer * Math.cos(radians), outer * Math.sin(radians), 0));
+
+    const iNext = (i + 1) % n;
+    geometry.faces.push(new THREE.Face3(i * 2, i * 2 + 1, iNext * 2));
+    geometry.faces.push(new THREE.Face3(i * 2 + 1, iNext * 2 + 1, iNext * 2));
+  }
+
+  loadMesh(geometry);
+}
+
+// --------------------------------------------------------------------------- 
+
 function loadCylinder() {
   const geometry = new THREE.Geometry();
   const h = 1;
@@ -225,6 +247,46 @@ function loadSphere() {
 
 // --------------------------------------------------------------------------- 
 
+function loadTorus() {
+  const geometry = new THREE.Geometry();
+  const nRings = 100;
+  const nSamples = 100;
+  const radius = 0.2;
+  const holeRadius = 0.3;
+  const push = holeRadius + radius;
+
+  for (let iRing = 0; iRing < nRings; iRing += 1) {
+    const ringRadians = iRing / nRings * 2 * Math.PI;
+    for (let iSample = 0; iSample < nSamples; iSample += 1) {
+      const sampleRadians = iSample / nSamples * 2 * Math.PI;
+      geometry.vertices.push(new THREE.Vector3(
+        Math.cos(ringRadians) * (radius * Math.cos(sampleRadians) + push),
+        radius * Math.sin(sampleRadians),
+        Math.sin(ringRadians) * (radius * Math.cos(sampleRadians) + push)
+      ));
+
+      const nextRing = (iRing + 1) % nRings;
+      const nextSample = (iSample + 1) % nSamples;
+
+      geometry.faces.push(new THREE.Face3(
+        iRing * nSamples + iSample,
+        iRing * nSamples + nextSample,
+        nextRing * nSamples + iSample,
+      ));
+
+      geometry.faces.push(new THREE.Face3(
+        iRing * nSamples + nextSample,
+        nextRing * nSamples + nextSample,
+        nextRing * nSamples + iSample,
+      ));
+    }
+  }
+
+  loadMesh(geometry);
+}
+
+// --------------------------------------------------------------------------- 
+
 function loadMesh(geometry) {
   geometry.computeFaceNormals();
   geometry.normalsNeedUpdate = true;
@@ -241,11 +303,29 @@ function loadMesh(geometry) {
 
 // --------------------------------------------------------------------------- 
 
+function loadPoints(geometry) {
+  if (mesh) {
+    mesh.geometry.dispose();
+    mesh.material.dispose();
+    scene.remove(mesh);
+  }
+
+  mesh = new THREE.Points(geometry, pointsMaterial);
+  scene.add(mesh);
+}
+
+// --------------------------------------------------------------------------- 
+
 const material = new THREE.MeshPhongMaterial({
   color: 0xFF0000,
   shininess: 100,
   specular: 0xFFFFFF,
   side: THREE.DoubleSide,
+});
+
+const pointsMaterial = new THREE.PointsMaterial({
+  color: 0x000000,
+  size: 0.01,
 });
 
 const light = new THREE.PointLight(0xFFFFFF, 1);
@@ -281,17 +361,23 @@ shapePicker.addEventListener('change', () => {
     case 'disc':
       loadDisc();
       break;
+    case 'annulus':
+      loadAnnulus();
+      break;
     case 'cylinder':
       loadCylinder();
       break;
     case 'sphere':
       loadSphere();
       break;
+    case 'torus':
+      loadTorus();
+      break;
   }
 });
 
-loadSphere();
-shapePicker.value = 'sphere';
+loadTorus();
+shapePicker.value = 'torus';
 
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
